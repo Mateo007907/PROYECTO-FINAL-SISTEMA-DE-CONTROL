@@ -1,0 +1,87 @@
+#INCLUDE <P16F887.INC>
+__CONFIG _CONFIG1, (_CP_OFF & _WDT_OFF & _PWRTE_ON & _INTOSC & _LVP_OFF)
+__CONFIG _CONFIG2, _BOR21V
+
+#define VELOCIDAD_FIJA  d'250'
+
+    CBLOCK 0x20
+        DELAY_1
+        DELAY_2
+    ENDC
+    ORG 0x00
+    GOTO INICIO
+
+INICIO:
+    BANKSEL OSCCON
+    MOVLW   b'01110000'
+    MOVWF   OSCCON
+
+    BANKSEL ANSEL
+    CLRF    ANSEL
+    CLRF    ANSELH
+
+    BANKSEL TRISA
+    MOVLW   b'00000001'
+    MOVWF   TRISA
+    CLRF    TRISB
+    CLRF    TRISC
+
+    BANKSEL PORTA
+    CLRF    PORTA
+    CLRF    PORTB
+    CLRF    PORTC
+
+    BANKSEL PR2
+    MOVLW   d'249'         
+    MOVWF   PR2
+
+    BANKSEL CCP1CON         
+    MOVLW   b'00001100'     
+    MOVWF   CCP1CON
+
+    BANKSEL CCP2CON         
+    MOVLW   b'00001100'     
+    MOVWF   CCP2CON
+
+    BANKSEL T2CON
+    MOVLW   b'00000100'    
+    MOVWF   T2CON
+
+BUCLE:
+    BTFSC   PORTA, 0        
+    GOTO    SISTEMA_ON
+    GOTO    SISTEMA_OFF
+SISTEMA_ON:
+
+    MOVLW   b'00000101'    
+    MOVWF   PORTB
+
+    MOVLW   VELOCIDAD_FIJA
+    MOVWF   CCPR1L
+    MOVWF   CCPR2L
+
+    CALL    DELAY_80MS
+    GOTO    BUCLE
+
+SISTEMA_OFF:
+    CLRF    PORTB           
+    CLRF    CCPR1L          
+    CLRF    CCPR2L
+    GOTO    BUCLE
+
+DELAY_80MS:
+    MOVLW   d'80'
+    MOVWF   DELAY_2
+LOOP_EXT:
+    MOVLW   d'250'
+    MOVWF   DELAY_1
+LOOP_INT:
+    NOP
+    NOP
+    DECFSZ  DELAY_1, F
+    GOTO    LOOP_INT
+    DECFSZ  DELAY_2, F
+    GOTO    LOOP_EXT
+    RETURN
+
+END
