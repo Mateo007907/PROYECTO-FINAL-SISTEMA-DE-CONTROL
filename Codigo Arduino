@@ -1,1 +1,36 @@
+const int MQ4 = A0;
+const int motor = 3; // El pin 3 es un pin PWM 
 
+int valorMQ4;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(MQ4, INPUT);
+  pinMode(motor, OUTPUT);
+}
+
+void loop() {
+  // Leemos el valor del sensor (0-1023)
+  valorMQ4 = analogRead(MQ4);
+  Serial.println(valorMQ4);
+  
+  
+  if (valorMQ4 > 700) {
+    // Si es mayor que 700, brillo al máximo
+    analogWrite(motor), 255); 
+  }
+  else if (valorMQ4 > 500) { 
+    
+    analogWrite(motor, 160);
+  }
+  else if (valorMQ4 > 300) {
+    
+    analogWrite(motor, 80);
+  }
+  else {
+  
+    analogWrite(motor, 0); 
+  }
+
+  delay(500); 
+}
